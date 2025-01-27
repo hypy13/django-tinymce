@@ -2,10 +2,13 @@
 # Licensed under the terms of the MIT License (see LICENSE.txt)
 
 import json
+import os
 
-from django.http import HttpResponse
+from django.conf import settings
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
+from django.views.decorators.csrf import csrf_exempt
 
 from tinymce.compressor import gzip_compressor
 
@@ -63,3 +66,25 @@ def filebrowser(request):
         {"fb_url": fb_url},
         content_type="application/javascript",
     )
+
+
+@csrf_exempt
+def tinymce_upload(request):
+    if request.method == 'POST' and 'file' in request.FILES:
+        uploaded_file = request.FILES['file']  # Get the uploaded file
+        upload_dir = os.path.join(settings.MEDIA_ROOT, 'uploads')  # Define the directory path
+
+        # Ensure the directory exists
+        if not os.path.exists(upload_dir):
+            os.makedirs(upload_dir)  # Create the directory and any intermediate directories
+
+        file_path = os.path.join(upload_dir, uploaded_file.name)  # Define the file path
+
+        # Save the file manually
+        with open(file_path, 'wb') as f:
+            for chunk in uploaded_file.chunks():
+                f.write(chunk)
+
+        file_url = f"{settings.MEDIA_URL}uploads/{uploaded_file.name}"
+
+    return JsonResponse({"location": request.build_absolute_uri(file_url)})

@@ -8,4 +8,5 @@ urlpatterns = [
     path("flatpages_link_list/", views.flatpages_link_list, name="tinymce-linklist"),
     path("compressor/", views.compressor, name="tinymce-compressor"),
     path("filebrowser/", views.filebrowser, name="tinymce-filebrowser"),
+    path("tiny-upload-handler/", views.tinymce_upload, name="tinymce-upload"),
 ]
